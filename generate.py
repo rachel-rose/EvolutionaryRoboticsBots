@@ -46,14 +46,12 @@ def Create_World():
 
 def Create_Robot():
     pyrosim.Start_URDF("body.urdf")
-    pyrosim.Send_Cube(name="Link0", pos=[0, 0, 0.5] , size=[1, 1, 1])
-    pyrosim.Send_Joint( name = "Link0_Link1" , parent= "Link0" , child = "Link1" , type = "revolute", position = [0.5, 0, 1])
-    pyrosim.Send_Cube(name="Link1", pos=[-0.5,0,0.5] , size=[1, 1, 1])
-    pyrosim.Send_Joint( name = "Link1_Link2" , parent= "Link1" , child = "Link2" , type = "revolute", position = [0, 0, 1])
-    pyrosim.Send_Cube(name="Link2", pos=[-0.5,0,0.5] , size=[1, 1, 1])
+    pyrosim.Send_Cube(name="Torso", pos=[1.5,0,1.5] , size=[1, 1, 1]) # send Torso
+    pyrosim.Send_Joint( name = "Torso_FrontLeg" , parent= "Torso" , child = "FrontLeg" , type = "revolute", position = [2,0,1]) # connect FrontL$
+    pyrosim.Send_Cube(name="FrontLeg", pos=[.5,0,-.5] , size=[1, 1, 1]) # send FrontLeg
+    pyrosim.Send_Joint( name = "Torso_BackLeg" , parent= "Torso" , child = "BackLeg" , type = "revolute", position = [1,0,1]) # connect BackLeg $
+    pyrosim.Send_Cube(name="BackLeg", pos=[-.5,0,-.5] , size=[1, 1, 1]) # send BackLeg
     pyrosim.End()
-
-# Modify generate.py to reflect this slide: rename the two links to Link0 and Link1, and rename the joint connecting them to Link0_Link1.
 
 
 Create_World()

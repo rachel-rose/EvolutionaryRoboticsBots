@@ -14,12 +14,14 @@ robotId = p.loadURDF("body.urdf")
 #p.loadSDF("robotId")
 p.loadSDF("world.sdf")
 
+pyrosim.Prepare_To_Simulate(robotId)
+
 for i in range(4000):
     p.stepSimulation()
-    print(f"interation num: {i}")
+    #print(f"interation num: {i}")
+    backLegTouch = pyrosim.Get_Touch_Sensor_Value_For_Link("BackLeg")
+    print(f"backleg is: {backLegTouch}")
     time.sleep(1/60)
-
-backLegTouch = pyrosim.Get_Touch_Sensor_Value_For_Link("BackLeg")
 
 p.disconnect()
 

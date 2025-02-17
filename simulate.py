@@ -25,6 +25,12 @@ for i in range(1000):
     p.stepSimulation()
     backLegSensorValues[i] = pyrosim.Get_Touch_Sensor_Value_For_Link("BackLeg")
     frontLegSensorValues[i] = pyrosim.Get_Touch_Sensor_Value_For_Link("FrontLeg")
+    pyrosim.Set_Motor_For_Joint(
+        bodyIndex = robotId,
+        jointName = b'Torso_BackLeg', #if issue b'parentName_childName'
+        controlMode = p.POSITION_CONTROL,
+        targetPosition = 0.0,
+        maxForce = 500)
     time.sleep(1/60)
 
 # Ensure the directory exists before saving

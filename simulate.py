@@ -1,88 +1,64 @@
-import pybullet_data
 import pybullet as p
 import time
+import pybullet_data
 import pyrosim.pyrosim as pyrosim
 import numpy as numpy
-import os
-import math
 import random
-import matplotlib.pylab as plt
+import math
+import constants as c
 
 physicsClient = p.connect(p.GUI)
 p.setAdditionalSearchPath(pybullet_data.getDataPath())
-p.setGravity(0,0,-9.8)
+
+p.configureDebugVisualizer(p.COV_ENABLE_GUI, 0)
+
+p.setGravity(0,0,c.GRAVITY,physicsClient)
 
 planeId = p.loadURDF("plane.urdf")
-#p.loadSDF("world.sdf")
-
 robotId = p.loadURDF("body.urdf")
-#p.loadSDF("robotId")
-p.loadSDF("world.sdf")
 
+p.loadSDF("world.sdf")
 pyrosim.Prepare_To_Simulate(robotId)
 
-backLegSensorValues = numpy.zeros(1000)
-frontLegSensorValues = numpy.zeros(1000)
+backLegSensorValues = numpy.zeros(c.ITERATIONS)
+frontLegSensorValues = numpy.zeros(c.ITERATIONS)
 
-# Number of iterations for loop len
-num_iterations = 10000 #num_steps
-# Create a linearly spaced vector from 0 to 2*pi
-x = numpy.linspace(0, 2 * numpy.pi, num_iterations) #time_values
-# Generate sinusoidal values, these will range from -1 to 1
-targetAngles = numpy.sin(x)
+# Create a sinusoidal wave ranging from [0, 2π]
+time_steps = numpy.linspace(0, 2 * math.pi, c.ITERATIONS)
 
-'''
-x = numpy.linspace(-numpy.pi, numpy.pi, 201)
-plt.plot(x, np.sin(x))
-plt.xlabel('Angle [rad]')
-plt.ylabel('sin(x)')
-plt.axis('tight')
-plt.show()'''
 
-# Save the values to a file
-numpy.savetxt("targetAngles.txt", targetAngles)
+# Generate sinusoidal values mapped to [-π/2, π/2]
+targetAngles = c.AMPLITUDE * numpy.sin(c.FREQUENCY * time_steps + c.PHASE_OFFSET)
+targetAngles2 = c.AMPLITUDE_2 * numpy.sin(c.FREQUENCY_2 * time_steps + c.PHASE_OFFSET_2)
 
-# Plot the values
-#plt.plot(x, targetAngles)
-plt.plot(numpy.linspace(0, 1000, num_iterations), targetAngles)  # Scaling x-axis to 1000
-plt.xlabel("Time Steps")
-plt.ylabel("Target Angles")
-plt.title("Sinusoidal Target Angles")
-plt.grid()
-plt.show()
+for i in range(c.ITERATIONS):
+	p.stepSimulation()
 
-# Exit before entering the loop
-exit()
+	backLegSensorValues[i] = pyrosim.Get_Touch_Sensor_Value_For_Link("BackLeg")
+	print("backleg sensor value: ", backLegSensorValues[i])
+	
+	frontLegSensorValues[i] = pyrosim.Get_Touch_Sensor_Value_For_Link("FrontLeg")
+	print("frontleg sensor value: ", frontLegSensorValues[i])
+	
+	targetPositionBack = targetAngles[i]
+	targetPositionFront = -targetAngles[i]
+    
+	pyrosim.Set_Motor_For_Joint(
+			bodyIndex = robotId,
+			jointName = b'Torso_BackLeg',
+			controlMode = p.POSITION_CONTROL,
+			targetPosition = targetAngles[i],
+			maxForce = c.MAX_FORCE)
+	
+	pyrosim.Set_Motor_For_Joint(
+			bodyIndex = robotId,
+			jointName = b'Torso_FrontLeg',
+			controlMode = p.POSITION_CONTROL,
+			targetPosition = targetAngles2[i],
+			maxForce = c.MAX_FORCE)
 
-for i in range(num_iterations):
-    p.stepSimulation()
-    backLegSensorValues[i] = pyrosim.Get_Touch_Sensor_Value_For_Link("BackLeg")
-    frontLegSensorValues[i] = pyrosim.Get_Touch_Sensor_Value_For_Link("FrontLeg")
-    pyrosim.Set_Motor_For_Joint(
-        bodyIndex = robotId,
-        jointName = b'Torso_BackLeg', 
-        controlMode = p.POSITION_CONTROL,
-        targetPosition = random.random() * (math.pi/2.0), #-
-        maxForce = 500)
-    pyrosim.Set_Motor_For_Joint(
-        bodyIndex = robotId,
-        jointName = b'Torso_FrontLeg', 
-        controlMode = p.POSITION_CONTROL,
-        targetPosition = random.random() * (math.pi/2.0), #+
-        maxForce = 500)
-    time.sleep(1/60)
-
-# Ensure the directory exists before saving
-output_dir = "data"
-if not os.path.exists(output_dir):
-    os.makedirs(output_dir)
-
-# Save sensor values to a .npy file
-numpy.save(os.path.join(output_dir, "backLegSensorValuesData.npy"), backLegSensorValues)
-numpy.save(os.path.join(output_dir, "frontLegSensorValuesData.npy"), frontLegSensorValues)
+	time.sleep(c.TIME_STEP)
 
 p.disconnect()
-
-#print new var
-print(f"backleg is: {backLegSensorValues}")
-print(f"Front leg sensor values: {frontLegSensorValues}")
+numpy.save("data/back_leg_sensor_values.npy", backLegSensorValues)
+numpy.save("data/front_leg_sensor_values.npy", frontLegSensorValues)

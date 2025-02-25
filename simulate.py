@@ -101,7 +101,7 @@ for i in range(c.ITERATIONS):
 
     # Set motor commands
     pyrosim.Set_Motor_For_Joint(
-        bodyIndex=sim.robotId,
+        bodyIndex=sim.robot.robotId,  #added acess to robotId from robot
         jointName=b'Torso_BackLeg',
         controlMode=p.POSITION_CONTROL,
         targetPosition=targetAngles[i],
@@ -109,7 +109,7 @@ for i in range(c.ITERATIONS):
     )
 
     pyrosim.Set_Motor_For_Joint(
-        bodyIndex=sim.robotId,
+        bodyIndex=sim.robot.robotId, #added acess to robotId from robot
         jointName=b'Torso_FrontLeg',
         controlMode=p.POSITION_CONTROL,
         targetPosition=targetAngles2[i],

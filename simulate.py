@@ -24,7 +24,6 @@ pyrosim.Prepare_To_Simulate(robotId)
 backLegSensorValues = numpy.zeros(1000)
 frontLegSensorValues = numpy.zeros(1000)
 
-# Step 32
 # Number of iterations for loop len
 num_iterations = 10000 #num_steps
 # Create a linearly spaced vector from 0 to 2*pi

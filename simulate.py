@@ -69,13 +69,14 @@ numpy.save("data/front_leg_sensor_values.npy", frontLegSensorValues)
 from simulation import SIMULATION
 import constants as c
 import numpy
-import time
 import pyrosim.pyrosim as pyrosim
 import pybullet as p
 import math
 
 # Create a SIMULATION instance
 sim = SIMULATION()
+
+sim.Run()
 
 # Arrays to store sensor values
 backLegSensorValues = numpy.zeros(c.ITERATIONS)
@@ -88,35 +89,7 @@ time_steps = numpy.linspace(0, 2 * math.pi, c.ITERATIONS)
 targetAngles = c.AMPLITUDE * numpy.sin(c.FREQUENCY * time_steps + c.PHASE_OFFSET)
 targetAngles2 = c.AMPLITUDE_2 * numpy.sin(c.FREQUENCY_2 * time_steps + c.PHASE_OFFSET_2)
 
-# Run the simulation loop
-for i in range(c.ITERATIONS):
-    p.stepSimulation()
-
-    # Read sensor values
-    backLegSensorValues[i] = pyrosim.Get_Touch_Sensor_Value_For_Link("BackLeg")
-    print("backleg sensor value: ", backLegSensorValues[i])
-    
-    frontLegSensorValues[i] = pyrosim.Get_Touch_Sensor_Value_For_Link("FrontLeg")
-    print("frontleg sensor value: ", frontLegSensorValues[i])
-
-    # Set motor commands
-    pyrosim.Set_Motor_For_Joint(
-        bodyIndex=sim.robot.robotId,  #added acess to robotId from robot
-        jointName=b'Torso_BackLeg',
-        controlMode=p.POSITION_CONTROL,
-        targetPosition=targetAngles[i],
-        maxForce=c.MAX_FORCE
-    )
-
-    pyrosim.Set_Motor_For_Joint(
-        bodyIndex=sim.robot.robotId, #added acess to robotId from robot
-        jointName=b'Torso_FrontLeg',
-        controlMode=p.POSITION_CONTROL,
-        targetPosition=targetAngles2[i],
-        maxForce=c.MAX_FORCE
-    )
-
-    time.sleep(c.TIME_STEP)
+#cut the for loop from here
 
 p.disconnect()
 

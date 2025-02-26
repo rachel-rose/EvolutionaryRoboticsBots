@@ -1,36 +1,42 @@
-'''class ROBOT:
-    def __init__(self):
-        self.sensors = {}
-        self.motors= {}
-        pass
-'''
-
 import pybullet as p
+import time
+import pybullet_data
 import pyrosim.pyrosim as pyrosim
+import numpy as numpy
+import random
+import math
+import constants as c
+from sensor import SENSOR
+from motor import MOTOR
 
 class ROBOT:
+
     def __init__(self):
-        # Load the robot model
+
+        self.motors = {}
+        self.sensors = {}
         self.robotId = p.loadURDF("body.urdf")
 
-        # Prepare for simulation
+        # Prepare simulation
         pyrosim.Prepare_To_Simulate(self.robotId)
-        self.motors= {}
+
+        self.Prepare_To_Sense()
+        self.Prepare_To_Act()
 
     def Prepare_To_Sense(self):
-        self.sensors = {}
-        #for linkName in pyrosim.linkNamesToIndices:
-            #print("this is "+ "" + linkName)
-        # Debugging: Check if pyrosim.linkNamesToIndices is populated
-        print("Checking linkNamesToIndices...")  
-        if hasattr(pyrosim, "linkNamesToIndices"):
-            print("Link Names to Indices:", pyrosim.linkNamesToIndices)  # Print dictionary
-        
-            # Iterate through the links and print their names
-            for linkName in pyrosim.linkNamesToIndices:
-                print("this is " + linkName)  # Expected output: 3 names
-                self.sensors[linkName] = None  # Store sensors for each link
-        
-        else:
-            print("ERROR: linkNamesToIndices is not defined. Check if Prepare_To_Simulate() is working.")
+        for linkName in pyrosim.linkNamesToIndices:
+            self.sensors[linkName] = SENSOR(linkName)
+
+    def Sense(self, t):
+        for sensor in self.sensors.values():
+            sensor.Get_Value(t)
+
+    def Prepare_To_Act(self):
+        for jointName in pyrosim.jointNamesToIndices:
+            self.motors[jointName] = MOTOR(jointName)
+
+    def Act(self, t):
+        for motor in self.motors.values():
+            motor.Set_Value(self, t)
+
     

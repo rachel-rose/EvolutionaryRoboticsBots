@@ -1,69 +1,57 @@
-'''
-class SIMULATION:
-    def __init__(self):
-        self.world = WORLD()
-        self.robot = ROBOT()
-
-'''
 import pybullet as p
+import time
 import pybullet_data
+import pyrosim.pyrosim as pyrosim
+import numpy as numpy
+import random
+import math
 import constants as c
 from robot import ROBOT
 from world import WORLD
-import time
+from motor import MOTOR
 
 class SIMULATION:
+    
     def __init__(self):
-        # Connect to PyBullet
-        self.physicsClient = p.connect(p.GUI)
+        print("Connecting to PyBullet...")  # Debugging line
 
-        # Set additional search path for PyBullet data
+        # test- Connect to PyBullet before loading anything
+        self.physicsClient = p.connect(p.GUI)  # Keep method header unchanged
+
+        # test- Set additional search path for PyBullet data
         p.setAdditionalSearchPath(pybullet_data.getDataPath())
 
-        # Configure the visualizer
+        # test- Configure PyBullet settings
         p.configureDebugVisualizer(p.COV_ENABLE_GUI, 0)
 
-        # Set gravity in the simulation
-        p.setGravity(0, 0, c.GRAVITY, self.physicsClient)
+        # test- Set gravity
+        p.setGravity(0, 0, c.GRAVITY)
 
-        # Create world and robot instances
+        print("Simulation initialized successfully!")  # Debugging line
         self.world = WORLD()
         self.robot = ROBOT()
+    
+        print("Simulation initialized successfully!")  # Debugging line
+
+
+
 
     def Run(self):
-        # Run the simulation loop
-        for i in range(c.ITERATIONS):
-            #print(i)
+        
+        for t in range(c.ITERATIONS):
+            self.robot.Sense(t)
+            self.robot.Act(t)
             p.stepSimulation()
-
-            '''
-            # Read sensor values
-            backLegSensorValues[i] = pyrosim.Get_Touch_Sensor_Value_For_Link("BackLeg")
-            print("backleg sensor value: ", backLegSensorValues[i])
-            
-            frontLegSensorValues[i] = pyrosim.Get_Touch_Sensor_Value_For_Link("FrontLeg")
-            print("frontleg sensor value: ", frontLegSensorValues[i])
-
-            # Set motor commands
-            pyrosim.Set_Motor_For_Joint(
-                bodyIndex=sim.robot.robotId,  #added acess to robotId from robot
-                jointName=b'Torso_BackLeg',
-                controlMode=p.POSITION_CONTROL,
-                targetPosition=targetAngles[i],
-                maxForce=c.MAX_FORCE
-            )
-
-            pyrosim.Set_Motor_For_Joint(
-                bodyIndex=sim.robot.robotId, #added acess to robotId from robot
-                jointName=b'Torso_FrontLeg',
-                controlMode=p.POSITION_CONTROL,
-                targetPosition=targetAngles2[i],
-                maxForce=c.MAX_FORCE
-            )
-            '''
-
+           
             time.sleep(c.TIME_STEP)
-    
+
+            print("Iteration: ", t)
+
+        self.Save_Data()
+
+    def Save_Data(self):
+        numpy.save("data/back_leg_sensor_values.npy", self.backLegSensorValues)
+        numpy.save("data/front_leg_sensor_values.npy", self.frontLegSensorValues)
+
     def __del__(self):
         p.disconnect()
-            

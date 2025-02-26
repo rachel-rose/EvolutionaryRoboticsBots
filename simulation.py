@@ -33,8 +33,7 @@ class SIMULATION:
     def Run(self):
         # Run the simulation loop
         for i in range(c.ITERATIONS):
-            print(i)
-            
+            #print(i)
             p.stepSimulation()
 
             '''
@@ -64,4 +63,7 @@ class SIMULATION:
             '''
 
             time.sleep(c.TIME_STEP)
+    
+    def __del__(self):
+        p.disconnect()
             

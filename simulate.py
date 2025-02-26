@@ -90,8 +90,7 @@ targetAngles = c.AMPLITUDE * numpy.sin(c.FREQUENCY * time_steps + c.PHASE_OFFSET
 targetAngles2 = c.AMPLITUDE_2 * numpy.sin(c.FREQUENCY_2 * time_steps + c.PHASE_OFFSET_2)
 
 #cut the for loop from here
-
-p.disconnect()
+#p.disconnect()
 
 # Save sensor data
 numpy.save("data/back_leg_sensor_values.npy", backLegSensorValues)

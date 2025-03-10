@@ -16,6 +16,11 @@ class NEURAL_NETWORK:
 
             self.Digest(line)
 
+        #step 10 synapses 
+        print("got up to step 10 synapses")
+        print(self.synapses)
+        exit()
+
         f.close()
 
     def Print(self):
